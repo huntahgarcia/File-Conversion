@@ -14,7 +14,7 @@ This program converts Excel files into CSV format, a simpler and more accessible
 
 ## 3. Requirements/Dependencies
 
-- Python 3.x
+- Python 3.10.9
 - Pandas (for handling Excel and CSV files)
 - Tkinter (for GUI)
 - tkinterdnd2 (for drag-and-drop functionality)
