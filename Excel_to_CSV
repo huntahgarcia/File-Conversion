@@ -1,0 +1,75 @@
+import pandas as pd
+import tkinter as tk
+from tkinterdnd2 import TkinterDnD, DND_FILES
+import os
+
+def convert_excel_to_csv(excel_file_path):
+    try:
+        excel_data = pd.ExcelFile(excel_file_path)
+        log_output.insert(tk.END, f"Excel file loaded: {excel_file_path}\n")
+        log_output.yview(tk.END)
+
+        for sheet_name in excel_data.sheet_names:
+            df = pd.read_excel(excel_data, sheet_name=sheet_name)
+            log_output.insert(tk.END, f"Processing sheet: {sheet_name}\n")
+            log_output.yview(tk.END)
+
+            save_folder = os.path.dirname(excel_file_path)
+            csv_file_name = os.path.join(save_folder, f"{sheet_name}.csv")
+           
+            df.to_csv(csv_file_name, index=False)
+            log_output.insert(tk.END, f"Saved {csv_file_name}\n")
+            log_output.yview(tk.END)
+
+    except Exception as e:
+        log_output.insert(tk.END, f"Error during conversion: {e}\n")
+        log_output.yview(tk.END)
+
+def on_drop(event):
+    file_path = event.data.strip("{}")
+    log_output.delete(1.0, tk.END)
+    log_output.insert(tk.END, f"File dropped: {file_path}\n")
+    log_output.yview(tk.END)
+
+    if os.path.exists(file_path):
+        log_output.insert(tk.END, f"File found: {file_path}\n")
+        log_output.yview(tk.END)
+        convert_excel_to_csv(file_path)
+        result_label.config(text="Conversion Complete!")
+    else:
+        log_output.insert(tk.END, f"File not found: {file_path}\n")
+        log_output.yview(tk.END)
+        result_label.config(text="File not found!")
+
+def clear_logs():
+    log_output.delete(1.0, tk.END)
+    result_label.config(text="")
+
+root = TkinterDnD.Tk()
+root.geometry("600x450")
+root.title("File Conversion: Excel to CSV")
+
+
+instructions_label = tk.Label(
+    root,
+    text="Instructions:\n\n1. Drag and drop an Excel file (.xlsx) into the window.\n"
+         "2. The program will convert each sheet to a separate CSV file.\n"
+         "3. The converted CSV files will be saved in the same folder as the original Excel file.\n"
+         "4. You can clear the log output at any time by clicking 'Clear'.",
+    padx=20,
+    pady=10,
+    justify="left",
+    font=("Helvetica", 12, "bold")  
+)
+instructions_label.pack()
+
+result_label = tk.Label(root, text="", padx=20, pady=10, font=("Helvetica", 10))
+result_label.pack()
+
+log_output = tk.Text(root, height=10, width=70)
+log_output.pack(padx=20, pady=10)
+
+clear_button = tk.Button(root, text="Clear", font=("Helvetica", 12), command=clear_logs)
+clear_button.pack(pady=10)
+
+root.mainloop()
